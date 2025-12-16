@@ -1,0 +1,36 @@
+import json
+import boto3
+import datetime
+import uuid
+
+s3 = boto3.client("s3")
+BUCKET_NAME = "calendly-webhook-raw"
+
+def lambda_handler(event, context):
+    # Webhook payload comes in event["body"] when using API Gateway proxy integration
+    body = event.get("body", "{}")
+    
+    try:
+        payload = json.loads(body)
+    except Exception:
+        # If body is not valid JSON, store raw string
+        payload = {"raw_body": body}
+    
+    # Generate unique filename: timestamp + random UUID
+    timestamp = datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    filename = f"events/{timestamp}_{uuid.uuid4().hex}.json"
+    
+    # Save to S3
+    s3.put_object(
+        Bucket=BUCKET_NAME,
+        Key=filename,
+        Body=json.dumps(payload),
+        ContentType="application/json"
+    )
+    
+    # Return success response to Calendly
+    return {
+        "statusCode": 200,
+        "headers": {"Content-Type": "application/json"},
+        "body": json.dumps({"message": "Webhook event saved", "file": filename})
+    }
