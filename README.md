@@ -8,3 +8,4 @@ Step by Step Process:
 7. Dashboards can be created directly in Databricks. But for this project, we used Streamlit app.
 
 
+<img width="509" height="245" alt="Data Pipeline" src="https://github.com/user-attachments/assets/41aba0e4-2aa6-4deb-8985-6a280def294c" />
